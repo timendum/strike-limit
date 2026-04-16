@@ -23,7 +23,7 @@
     "@devvit/web": "0.12.18",
     "@hono/node-server": "^1.19.13",
     "devvit": "0.12.18",
-    "hono": "^4.12.12",
+    "hono": "^4.12.14",
     "temporal-polyfill": "^0.3.2"
   },
   "devDependencies": {

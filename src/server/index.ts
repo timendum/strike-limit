@@ -5,15 +5,17 @@ import { createServer, getServerPort } from "@devvit/web/server";
 // import { forms } from "./routes/forms";
 // import { menu } from "./routes/menu";
 import { triggers } from "./routes/triggers";
+import { settings } from "./routes/settings";
 
 const app = new Hono();
 const internal = new Hono();
 
 // internal.route("/menu", menu);
 // internal.route("/forms", forms);
+internal.route("/settings", settings);
 internal.route("/triggers", triggers);
-
 // app.route("/api", api);
+
 app.route("/internal", internal);
 
 serve({

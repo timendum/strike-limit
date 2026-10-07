@@ -14,9 +14,65 @@
   "triggers": {
     "onAppInstall": "/internal/triggers/app-install",
     "onAppUpgrade": "/internal/triggers/app-upgrade",
-    "onModAction": "/internal/triggers/mod-action"
+    "onModAction": "/internal/triggers/mod-action",
+    "onModMail": "/internal/triggers/mod-mail"
   },
   "dev": {
     "subreddit": "strike_limit_dev"
+  },
+  "settings": {
+    "subreddit": {
+      "strikes-ban": {
+        "type": "string",
+        "label": "Number of strike for a ban (separated by ;)",
+        "helpText": "How many strikes for auto-ban to triggers, if multiple values are provided, the second ban will use the second value and so on.",
+        "validationEndpoint": "/internal/settings/strikes-ban",
+        "defaultValue": "3"
+      },
+      "ban-duration": {
+        "type": "string",
+        "label": "Number of day for ban duration (0 = permanent, separated by ;)",
+        "helpText": "How long the ban lasts, if multiple values are provided, the second ban will use the second value and so on.",
+        "validationEndpoint": "/internal/settings/ban-duration",
+        "defaultValue": "30"
+      },
+      "span-days": {
+        "type": "number",
+        "label": "How many days will be considered?",
+        "helpText": "Strikes automatically expire after 365 days, but you can set a shorter period (0 = max).",
+        "validationEndpoint": "/internal/settings/span-days",
+        "defaultValue": 0
+      },
+      "include-reddit": {
+        "type": "boolean",
+        "label": "Include \"Removed by Reddit\" ?",
+        "helpText": "If checked, content removed by Reddit admins are included in the strike count.",
+        "defaultValue": false
+      },
+      "no-ban": {
+        "type": "boolean",
+        "label": "Don't ban, just notify",
+        "helpText": "If checked, the app will only notify the mod team via ModMail.",
+        "defaultValue": false
+      },
+      "ignore-approved": {
+        "type": "boolean",
+        "label": "Don't ban Approved users",
+        "helpText": "If checked, Approved users are skipped, the app will only notify the mod team via ModMail.",
+        "defaultValue": false
+      },
+      "ban-text": {
+        "type": "paragraph",
+        "label": "Ban message",
+        "helpText": "Placeholders: {list}, {user}, {removedNumber}",
+        "defaultValue": "You have been banned because of too many content removed by our team:\n\n{list}"
+      },
+      "ban-entry": {
+        "type": "string",
+        "label": "Ban list entry",
+        "helpText": "Placeholders: {kind}, {permalink}, {date}",
+        "defaultValue": "- {date}: [{kind} removal]({permalink})"
+      }
+    }
   }
 }

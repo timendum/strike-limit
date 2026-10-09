@@ -47,3 +47,23 @@ export function isBanAction(obj: unknown): obj is BanAction {
     typeof obj.user === "string"
   );
 }
+
+export type NoBanAction = {
+  createdAt: string;
+  user: string;
+  from: "notification";
+};
+
+export function isNoBanAction(obj: unknown): obj is NoBanAction {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    "createdAt" in obj &&
+    typeof obj.createdAt === "string" &&
+    "user" in obj &&
+    typeof obj.user === "string" &&
+    "from" in obj &&
+    typeof obj.from === "string" &&
+    obj.from == "notification"
+  );
+}

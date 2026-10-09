@@ -1,11 +1,13 @@
 import { Hono } from "hono";
 import type {
   OnAppInstallRequest,
+  OnAppUpgradeRequest,
   OnModActionRequest,
   OnModMailRequest,
   TriggerResponse,
 } from "@devvit/web/shared";
 import {
+  removeRemovalAction,
   replyModMailQuery,
   storeBan,
   storeRemovalAction,
@@ -23,19 +25,19 @@ triggers.post("/app-install", async (c) => {
     {
       status: "success",
     },
-    200
+    200,
   );
 });
 
 triggers.post("/app-upgrade", async (c) => {
   // url from devvit triggers.onAppUpgrade
-  const input = await c.req.json<OnAppInstallRequest>();
+  const input = await c.req.json<OnAppUpgradeRequest>();
   console.log("App upgraded to subreddit: r/" + input.subreddit?.name);
   return c.json<TriggerResponse>(
     {
       status: "success",
     },
-    200
+    200,
   );
 });
 
@@ -76,6 +78,43 @@ async function handleAddRemovalReason(input: OnModActionRequest) {
   return false;
 }
 
+async function handleApprove(input: OnModActionRequest) {
+  if (input.action !== "approvecomment" && input.action !== "approvelink") {
+    return false;
+  }
+  let action = undefined;
+  if (input.targetComment) {
+    action = {
+      createdAt: input.actionedAt,
+      modType: "mod",
+      target: {
+        id: input.targetComment.id,
+        author: input.targetUser?.name,
+        createdAt: input.targetComment.createdAt,
+        postId: input.targetComment.postId,
+      },
+    };
+  } else if (input.targetPost) {
+    action = {
+      createdAt: input.actionedAt,
+      modType: "mod",
+      target: {
+        id: input.targetPost.id,
+        author: input.targetUser?.name,
+        createdAt: input.targetPost.createdAt,
+        postId: input.targetPost.id,
+      },
+    };
+  }
+  if (isRemovalAction(action)) {
+    await removeRemovalAction(action);
+    return true;
+  } else {
+    console.error("Approve not handled", input, action);
+  }
+  return false;
+}
+
 async function handleBan(input: OnModActionRequest) {
   if (input.action !== "banuser") {
     return false;
@@ -100,20 +139,21 @@ triggers.post("/mod-action", async (c) => {
   const handled = await Promise.all([
     handleAddRemovalReason(input),
     handleBan(input),
+    handleApprove(input),
   ]);
   if (handled.some((a) => a)) {
     return c.json<TriggerResponse>(
       {
         status: "success",
       },
-      200
+      200,
     );
   }
   return c.json<TriggerResponse>(
     {
       status: "skipped",
     },
-    200
+    200,
   );
 });
 
@@ -139,13 +179,13 @@ triggers.post("/mod-mail", async (c) => {
       {
         status: "success",
       },
-      200
+      200,
     );
   }
   return c.json<TriggerResponse>(
     {
       status: "skipped",
     },
-    200
+    200,
   );
 });

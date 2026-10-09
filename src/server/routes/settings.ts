@@ -58,7 +58,7 @@ settings.post("/ban-duration", async (c) => {
 settings.post("/span-days", async (c) => {
   const { value } = await c.req.json<SettingsValidationRequest<number>>();
 
-  if (!value || value < 0 || value > 365) {
+  if (value === undefined || value < 0 || value > 365) {
     return c.json<SettingsValidationResponse>({
       success: false,
       error: "Please enter a number between 0 and 365",

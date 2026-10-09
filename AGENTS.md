@@ -22,7 +22,7 @@ src/server/routes/
 src/server/core/
   strikes.ts             Core domain logic: store removals/bans, evaluate ban, modmail query reply.
 src/shared/
-  types.ts               RemovalAction, BanAction + runtime type guards.
+  types.ts               RemovalAction, BanAction, NoBanAction + runtime type guards.
   config.ts              Reads/normalizes app settings; getNForBan escalation helper.
   text.ts                Template formatting for ban/removal messages.
 ```
@@ -40,9 +40,10 @@ Each trigger handler returns a `TriggerResponse` with `status: "success" | "skip
 
 ### mod-action
 
-`mod-action` runs two handlers in parallel and reports success if either handled the event:
+`mod-action` runs three handlers in parallel and reports success if any handled the event:
 
 - `handleAddRemovalReason`: only acts on `action === "addremovalreason"`. Builds a `RemovalAction` from `targetComment` or `targetPost`, validates with `isRemovalAction`, then `storeRemovalAction`.
+- `handleApprove`: only acts on `action === "approvecomment" | "approvelink"`. Builds the same `RemovalAction` shape (keyed by `target.id`), validates with `isRemovalAction`, then `removeRemovalAction` — undoing a prior strike when content is approved.
 - `handleBan`: only acts on `action === "banuser"`. Builds a `BanAction`, validates with `isBanAction`, then `storeBan`. Note: this records every ban, including bans issued by this app, which drives escalation.
 
 ### mod-mail
@@ -51,29 +52,36 @@ Each trigger handler returns a `TriggerResponse` with `status: "success" | "skip
 
 ## Redis data model
 
-Two sorted sets (ZSETs) per user, keyed by username:
+Three sorted sets (ZSETs) per user, keyed by username:
 
 - `user:{username}:removal` — score = `target.createdAt` (epoch ms); member = JSON `RemovalAction`.
 - `user:{username}:ban` — score = ban `createdAt` as epoch ms; member = JSON `BanAction`.
+- `user:{username}:noBan` — score = `createdAt` as epoch ms; member = JSON `NoBanAction`. When the user crossed the threshold but was **not** banned (notify-only / approved / moderator paths). Advances the counting window but not the escalation tier.
 
 Conventions:
 
 - **Dedup**: `storeRemovalAction` queries `zRange(key, score, score, {by:"score"})` and skips if a member with the same `target.id` already exists.
-- **TTL**: `redis.expire(key, 366*24*60*60)` is reset on every write (≈366 days).
-- Reads use `zRange(key, since, "+inf", {by:"score"})`; members are JSON-parsed then filtered through the type guards (`isRemovalAction` / `isBanAction`) to drop malformed entries.
+- **Approval removal**: `removeRemovalAction` queries the same score window, filters by `target.id`, and `zRem`s the **original stored member string**. No-op if none found. Does **not** call `maybeBanUser` (approvals only reduce strikes) and does **not** extend TTL (no need).
+- **TTL**: `redis.expire` resets all three keys on every write/add (≈366 days); the removal path above intentionally skips it.
+- Reads use `zRange(key, since, "+inf", {by:"score"})`; members are JSON-parsed then filtered through the type guards (`isRemovalAction` / `isBanAction` / `isNoBanAction`) to drop malformed entries.
 
 ## Ban evaluation (`maybeBanUser`)
 
 Called after each stored removal. Logic:
 
-1. Load strike config and ban history (`getBans` → `{ nBans, lastBan }`, where `nBans` is a lifetime `zCard`).
+1. Load strike config and history via `getUserBans` → `{ nBans, lastBan }`. `nBans` = `zCard` of the `:ban` set only (real bans; `:noBan` is **excluded**). `lastBan` = latest score across **both** `:ban` and `:noBan`.
 2. Compute `since = max(lastBan, now - spanDays)` when `spanDays > 0`; strikes before `since` are ignored.
 3. Load removals since `since`. If `includeReddit` is false, keep only `modType === "mod"`.
 4. `maxStrikes = getNForBan(nBans, strikesBan)`. If `removals.length < maxStrikes`, return (no ban).
-5. Otherwise ban: duration = `getNForBan(nBans, banDuration)` (`0` → permanent, passed as `undefined`); ban message built by `formatTextRemoval`.
-6. Modes: `noBan` → ModMail notify only; `ignoreApproved` → check `reddit.getApprovedUsers`; else `reddit.banUser`.
+5. Otherwise, resolve the outcome. Non-ban paths each send an internal ModMail (`formatNotBanned`), call `storeNoBan`, and return:
+   - `noBan` setting on → notify only.
+   - `ignoreApproved` on and user in `reddit.getApprovedUsers` → notify only.
+   - user in `reddit.getModerators` → notify only.
+   Otherwise ban: duration = `getNForBan(nBans, banDuration)` (`0` → permanent, passed as `undefined`); message built by `formatTextRemoval`; `reddit.banUser`. The `banuser` ModAction this issues is later recorded via `storeBan`, incrementing `nBans`.
 
-`getNForBan(nBans, config)` returns `config[nBans]` or the last element — this is the per-repeat-offense escalation.
+`getNForBan(nBans, config)` returns `config[nBans]` or the last element — the per-repeat-offense escalation.
+
+**Window vs escalation (intentional):** a `storeNoBan` write advances `lastBan`, so the next evaluation's `since` moves forward and removal counting restarts — this throttles repeat ModMail. But because `nBans` ignores the `:noBan` set, `maxStrikes` stays at the same tier. Net: notify-only outcomes reset the counting window but never escalate; only a real ban advances the tier.
 
 ## Settings
 

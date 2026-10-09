@@ -26,7 +26,7 @@ settings.post("/strikes-ban", async (c) => {
     if (!isPositiveInteger(strike))
       return c.json<SettingsValidationResponse>({
         success: false,
-        error: "Invalid number of strike: " + strike,
+        error: "Please enter a integer number greater than 0: " + strike,
       });
   }
 
@@ -48,7 +48,7 @@ settings.post("/ban-duration", async (c) => {
     if (!isPositiveInteger(duration, 0))
       return c.json<SettingsValidationResponse>({
         success: false,
-        error: "Invalid ban duration: " + duration,
+        error: "Invalid ban duration, must be interger and not negative: " + duration,
       });
   }
 

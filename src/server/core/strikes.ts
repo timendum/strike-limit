@@ -128,7 +128,7 @@ async function getUserBans(user: string) {
     const banDates = parseZSetMembers(bans, isNoBanAction).map(
       (a) => a[0].createdAt,
     );
-    console.debug(`getUserBans - ${user} - noBans: ${nNoBans} - ${banDates}`);
+    console.debug(`getUserBans - ${user} - noBans: ${nNoBans} -`, banDates);
     lastBan =
       banDates.length > 0
         ? Temporal.Instant.from(banDates[0]).epochMilliseconds
@@ -143,7 +143,7 @@ async function getUserBans(user: string) {
     const banDates = parseZSetMembers(bans, isBanAction).map(
       (a) => a[0].createdAt,
     );
-    console.debug(`getUserBans - ${user} - bans: ${nBans} - ${banDates}`);
+    console.debug(`getUserBans - ${user} - bans: ${nBans} -`, banDates);
     lastBan = Math.max(
       banDates.length > 0
         ? Temporal.Instant.from(banDates[0]).epochMilliseconds
@@ -164,8 +164,9 @@ export async function maybeBanUser(user: string) {
   if (strikeConfig.spanDays > 0) {
     since = Math.max(
       since,
-      Temporal.Now.instant().subtract({ days: strikeConfig.spanDays })
-        .epochMilliseconds,
+      Temporal.Now.instant()
+        .toZonedDateTimeISO("UTC")
+        .subtract({ days: strikeConfig.spanDays }).epochMilliseconds,
     );
   }
   // Retrieve removals
@@ -183,7 +184,8 @@ export async function maybeBanUser(user: string) {
   }
   const maxStrikes = getNForBan(nBans, strikeConfig.strikesBan);
   console.debug(
-    `maybeBanUser - ${user} - ${nBans} - ${maxStrikes} vs ${removals}`,
+    `maybeBanUser - ${user} - ${nBans} - ${maxStrikes} vs`,
+    removals,
   );
   if (removals.length < maxStrikes) {
     // NO BAN

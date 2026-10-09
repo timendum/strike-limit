@@ -4,7 +4,7 @@ A moderation app for Reddit that keeps track of how often a user's content is re
 
 ## What it does
 
-- Counts each content removal (post or comment) against the author as a strike.
+- Counts each time an user in notified of a content (post or comment) removal via "Add removal reason" and count it as a strike.
 - Bans a user once they reach the configured number of strikes.
 - Supports escalating rules: the second ban can use a higher strike limit and a longer duration than the first, and so on.
 - Can be set to only notify the mod team by ModMail instead of banning.

@@ -71,7 +71,9 @@ function formatEntryRemoval(entry: RemovalAction, entryTemplate: string) {
     .toZonedDateTimeISO("UTC")
     .toPlainDate()
     .toString();
-  let permalink = `https://www.reddit.com/comments/${entry.target.postId.substring(3)}/`;
+  let permalink = `https://www.reddit.com/comments/${entry.target.postId.substring(
+    3,
+  )}/`;
   let kind = "post";
   if (entry.target.id != entry.target.postId) {
     permalink = `${permalink}_/${entry.target.id.substring(3)}/`;

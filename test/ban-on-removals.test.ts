@@ -90,7 +90,8 @@ ignoreApprovedTest(
     expect(stubs.banUser).not.toHaveBeenCalled();
     expect(stubs.createConversation).toHaveBeenCalledTimes(1);
     const conv = stubs.createConversation.mock.calls[0][0];
-    expect(conv.subject).toContain("approved");
+    expect(conv.subject).toContain("trusted");
+    expect(conv.body.toLowerCase()).toContain("approved");
     expect(conv.to).toBeNull();
   },
 );

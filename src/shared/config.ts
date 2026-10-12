@@ -1,15 +1,13 @@
 import { settings } from "@devvit/web/server";
 
 export async function getStrikeConfig() {
-  let [strikesBanStr, spanDays, includeReddit] = await Promise.all([
+  let [strikesBanStr, spanDays] = await Promise.all([
     settings.get<string>("strikes-ban"),
     settings.get<number>("span-days"),
-    settings.get<boolean>("include-reddit"),
   ]);
   // default, to avoid undefined
   strikesBanStr = strikesBanStr || "3";
   spanDays = spanDays || 0;
-  includeReddit = includeReddit === undefined ? false : includeReddit;
   const strikesBan = strikesBanStr
     .split(";")
     .map((d) => Number(d))
@@ -17,7 +15,6 @@ export async function getStrikeConfig() {
   return {
     strikesBan,
     spanDays,
-    includeReddit,
   };
 }
 

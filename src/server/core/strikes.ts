@@ -179,9 +179,6 @@ export async function maybeBanUser(user: string) {
   let removals = parseZSetMembers(removalEntries, isRemovalAction).map(
     (a) => a[0],
   );
-  if (!strikeConfig.includeReddit) {
-    removals = removals.filter((a) => a.modType == "mod");
-  }
   const maxStrikes = getNForBan(nBans, strikeConfig.strikesBan);
   console.debug(
     `maybeBanUser - ${user} - ${nBans} - ${maxStrikes} vs`,

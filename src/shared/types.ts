@@ -1,6 +1,6 @@
 export type RemovalAction = {
   createdAt: string;
-  modType: "mod" | "admin";
+  modType: "mod";
   target: {
     id: string;
     createdAt: number;
@@ -17,7 +17,7 @@ export function isRemovalAction(obj: unknown): obj is RemovalAction {
     typeof obj.createdAt === "string" &&
     "modType" in obj &&
     typeof obj.modType === "string" &&
-    (obj.modType == "mod" || obj.modType == "admin") &&
+    obj.modType == "mod" &&
     "target" in obj &&
     typeof obj.target === "object" &&
     obj.target !== null &&

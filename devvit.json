@@ -44,12 +44,6 @@
         "validationEndpoint": "/internal/settings/span-days",
         "defaultValue": 0
       },
-      "include-reddit": {
-        "type": "boolean",
-        "label": "Include \"Removed by Reddit\" ?",
-        "helpText": "If checked, content removed by Reddit admins are included in the strike count.",
-        "defaultValue": false
-      },
       "no-ban": {
         "type": "boolean",
         "label": "Don't ban, just notify",

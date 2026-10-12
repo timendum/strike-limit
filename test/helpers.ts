@@ -262,6 +262,17 @@ export function banUserAction(params: {
   ) as unknown as OnModActionRequest;
 }
 
+/** `unbanuser` mod-action, issued by some moderator (as in production). */
+export function unbanUserAction(params: {
+  user: string;
+  actionedAt: string;
+}): OnModActionRequest {
+  return modActionEnvelope(
+    { action: "unbanuser", actionedAt: params.actionedAt },
+    params.user,
+  ) as unknown as OnModActionRequest;
+}
+
 /** An arbitrary unhandled mod-action (e.g. "sticky"). */
 export function otherModAction(params: {
   action: string;

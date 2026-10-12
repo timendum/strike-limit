@@ -7,6 +7,7 @@ import type {
   TriggerResponse,
 } from "@devvit/web/shared";
 import {
+  removeBanIfRecent,
   removeRemovalAction,
   replyModMailQuery,
   storeBan,
@@ -132,6 +133,23 @@ async function handleBan(input: OnModActionRequest) {
   return false;
 }
 
+async function handleUnban(input: OnModActionRequest) {
+  if (input.action !== "unbanuser") {
+    return false;
+  }
+  const unban = {
+    createdAt: input.actionedAt,
+    user: input.targetUser?.name,
+  };
+  if (isBanAction(unban)) {
+    await removeBanIfRecent(unban);
+    return true;
+  } else {
+    console.error("Unban not handled", input, unban);
+  }
+  return false;
+}
+
 triggers.post("/mod-action", async (c) => {
   // url from devvit triggers.onModAction
   const input = await c.req.json<OnModActionRequest>();
@@ -140,6 +158,7 @@ triggers.post("/mod-action", async (c) => {
     handleAddRemovalReason(input),
     handleBan(input),
     handleApprove(input),
+    handleUnban(input),
   ]);
   if (handled.some((a) => a)) {
     return c.json<TriggerResponse>(

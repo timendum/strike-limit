@@ -51,7 +51,7 @@ export function isBanAction(obj: unknown): obj is BanAction {
 export type NoBanAction = {
   createdAt: string;
   user: string;
-  from: "notification";
+  from: "notification" | "unban";
 };
 
 export function isNoBanAction(obj: unknown): obj is NoBanAction {
@@ -64,6 +64,6 @@ export function isNoBanAction(obj: unknown): obj is NoBanAction {
     typeof obj.user === "string" &&
     "from" in obj &&
     typeof obj.from === "string" &&
-    obj.from == "notification"
+    (obj.from == "notification" || obj.from == "unban")
   );
 }

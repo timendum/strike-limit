@@ -5,6 +5,7 @@ import {
   formatLastBan,
   formatNotBanned,
   formatTextBan,
+  formatTextNoBan,
   formatTextRemoval,
 } from "../../shared/text";
 import {
@@ -101,6 +102,14 @@ async function getRemovalActions(user: string, since: number) {
     by: "score",
   });
   return parseZSetMembers(removals, isRemovalAction).map((a) => a[0]);
+}
+
+
+async function getNoBanActions(user: string, since: number) {
+  const bans = await redis.zRange(`user:${user}:noBan`, since, "+inf", {
+    by: "score",
+  });
+  return parseZSetMembers(bans, isNoBanAction).map((a) => a[0]);
 }
 
 /**
@@ -333,9 +342,10 @@ export async function replyModMailQuery(conversationId: string) {
     console.log("No user in subject:", conversation.subject);
     return false;
   }
-  const [removals, bans] = await Promise.all([
+  const [removals, bans, noBans] = await Promise.all([
     getRemovalActions(user, 0),
     getBanActions(user, 0),
+    getNoBanActions(user, 0),
   ]);
 
   let body = formatTextRemoval(
@@ -352,10 +362,56 @@ export async function replyModMailQuery(conversationId: string) {
       "- {date}",
       "No recorded bans for u/{user}.",
     );
+  body +=
+    "\n\n" +
+    formatTextNoBan(
+      { user, noBans },
+      "Recorded no-ban events for u/{user}:\n\n{list}",
+      "- {date} ({reason})",
+      "No recorded no-ban events for u/{user}.",
+    );
   await reddit.modMail.reply({
     body,
     conversationId: conversationId,
   });
+  return true;
+}
+
+/**
+ * Undo a recent ban
+ */
+export async function removeBanIfRecent(ban: BanAction) {
+  const createdAt = Temporal.Instant.from(ban.createdAt).epochMilliseconds;
+  const key = `user:${ban.user}:ban`;
+  const deltaT = 23*60*60*100;
+
+  const entries = await redis.zRange(key, createdAt - deltaT, createdAt, {
+    by: "score",
+  });
+  const candidates = parseZSetMembers(entries, isBanAction).filter(
+    ([b]) =>
+      createdAt - Temporal.Instant.from(b.createdAt).epochMilliseconds < deltaT,
+  );
+  if (candidates.length === 0) {
+    console.log("No recent ban to undo for unban", ban);
+    return false;
+  }
+
+  // Most recent qualifying ban.
+  const [, original] = candidates.reduce((latest, current) =>
+    Temporal.Instant.from(current[0].createdAt).epochMilliseconds >
+    Temporal.Instant.from(latest[0].createdAt).epochMilliseconds
+      ? current
+      : latest,
+  );
+
+  await redis.zRem(key, [original]);
+  await storeNoBan({
+    createdAt: ban.createdAt,
+    user: ban.user,
+    from: "unban",
+  });
+  console.log("Ban undone (recent unban)", ban);
   return true;
 }
 

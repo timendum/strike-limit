@@ -1,16 +1,20 @@
 # Strike Limit
 
-A moderation app for Reddit that keeps track of how often a user's content is removed and automatically bans users who cross a strike limit.
+A moderation app for Reddit that counts each time a user's content is removed with an "Add removal reason" mod action and automatically bans users who cross a strike limit.
 
 ## What it does
 
 - Counts each time a user is notified of a content (post or comment) removal via "Add removal reason" as a strike.
 - Removes the strike again if the content is later approved.
 - Bans a user once they reach the configured number of strikes.
-- Supports escalating rules: the second ban can use a higher strike limit and a longer duration than the first, and so on.
-- Can be set to only notify the mod team by ModMail instead of banning.
-- Tracks unbans as "ban undone" in a user's history (if the ban last less than 24 hours.)
 - Sends the user a customizable ban message listing the removed content.
+
+### Features
+
+- Supports escalating rules: the second ban can use a different strike limit and a longer duration than the first, and so on.
+- Can be set to only notify the mod team by ModMail instead of banning (does not escalate ban configuration).
+- Can skip approved users, notifying the mod team by ModMail instead of banning them.
+- Tracks "ban undone" in a user's history (if the ban lasts less than 24 hours.)
 
 ## Settings
 
@@ -24,4 +28,6 @@ A moderation app for Reddit that keeps track of how often a user's content is re
 
 ## Checking a user
 
-Send an internal ModMail with a subject containing both `strike` and `query` plus the username (for example, `strike query u/example`). The app replies with the recorded removals for that user.
+Send an internal [ModMail](https://www.reddit.com/mail/create) with a subject
+containing both `strike` and `query` plus the username (for example, `strike query u/example`).
+The app replies with the recorded removals for that user.

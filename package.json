@@ -18,10 +18,9 @@
     "launch": "npm run build && npm run deploy && devvit publish"
   },
   "engines": {
-    "node": ">=22.6.0"
+    "node": ">=24.18"
   },
   "dependencies": {
-    "@devvit/public-api": "^0.14.7",
     "@devvit/web": "0.14.7",
     "@hono/node-server": "^2.1.3",
     "devvit": "0.14.7",

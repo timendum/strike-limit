@@ -5,6 +5,9 @@
     "dir": "dist/server",
     "entry": "index.cjs"
   },
+  "marketingAssets": {
+    "icon": "assets/icon.png"
+  },
   "permissions": {
     "redis": true,
     "reddit": {

@@ -1,0 +1,80 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 512 512"
+  role="img"
+  aria-labelledby="title"
+>
+  <title id="title">Strike Limit</title>
+
+  <!-- Background -->
+  <rect
+    x="24"
+    y="24"
+    width="464"
+    height="464"
+    rx="100"
+    fill="#151B2B"
+  />
+
+  <!-- Shield -->
+  <path
+    d="
+      M256 78
+      C218 104 171 124 122 138
+      V238
+      C122 332 174 398 256 432
+      C338 398 390 332 390 238
+      V138
+      C341 124 294 104 256 78
+      Z
+    "
+    fill="#F7F8FA"
+  />
+
+  <!-- Three centered strikes -->
+  <g
+    fill="none"
+    stroke="#F04438"
+    stroke-width="28"
+    stroke-linecap="round"
+  >
+    <path d="M187 184 L168 286"/>
+    <path d="M256 184 L237 286"/>
+    <path d="M325 184 L306 286"/>
+  </g>
+
+  <!-- Simple gavel -->
+  <g transform="rotate(-45 351 352)">
+
+    <!-- Handle -->
+    <rect
+      x="339"
+      y="324"
+      width="24"
+      height="126"
+      rx="12"
+      fill="#59677F"
+    />
+
+    <!-- Hammer head -->
+    <rect
+      x="294"
+      y="292"
+      width="114"
+      height="58"
+      rx="14"
+      fill="#29354B"
+    />
+
+    <!-- Red center band -->
+    <rect
+      x="337"
+      y="292"
+      width="30"
+      height="58"
+      rx="4"
+      fill="#F04438"
+    />
+
+  </g>
+</svg>

@@ -1,5 +1,6 @@
 import { createDevvitTest } from "@devvit/test/server/vitest";
 import { expect } from "vitest";
+
 import {
   autoModMailRequest,
   banUserAction,
@@ -46,9 +47,7 @@ test("replies to a strike query with the user's recorded removals and bans", asy
     authors: [{ name: "human_mod" }],
   });
 
-  const status = await postModMail(
-    modMailRequest({ conversationId: "ModmailConversation_q1" }),
-  );
+  const status = await postModMail(modMailRequest({ conversationId: "ModmailConversation_q1" }));
 
   expect(status).toBe("success");
   expect(stubs.reply).toHaveBeenCalledTimes(1);
@@ -68,9 +67,7 @@ test("reports no records for a user with a clean history", async () => {
     authors: [{ name: "human_mod" }],
   });
 
-  const status = await postModMail(
-    modMailRequest({ conversationId: "ModmailConversation_q2" }),
-  );
+  const status = await postModMail(modMailRequest({ conversationId: "ModmailConversation_q2" }));
 
   expect(status).toBe("success");
   const body = stubs.reply.mock.calls[0][0].body as string;
@@ -85,9 +82,7 @@ test("ignores its own mail to avoid reply loops", async () => {
     authors: [{ name: "strike-limit" }],
   });
 
-  const status = await postModMail(
-    modMailRequest({ conversationId: "ModmailConversation_q3" }),
-  );
+  const status = await postModMail(modMailRequest({ conversationId: "ModmailConversation_q3" }));
 
   expect(status).toBe("skipped");
   expect(stubs.reply).not.toHaveBeenCalled();
@@ -100,9 +95,7 @@ test("skips conversations whose subject is not a strike query", async () => {
     authors: [{ name: "human_mod" }],
   });
 
-  const status = await postModMail(
-    modMailRequest({ conversationId: "ModmailConversation_q4" }),
-  );
+  const status = await postModMail(modMailRequest({ conversationId: "ModmailConversation_q4" }));
 
   expect(status).toBe("skipped");
   expect(stubs.reply).not.toHaveBeenCalled();

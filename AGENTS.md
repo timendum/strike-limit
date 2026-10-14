@@ -9,7 +9,7 @@ A Reddit Developer Platform (Devvit Web) app. It is server-only (no client/webvi
 - **Devvit APIs**: `@devvit/web/server` provides `reddit`, `redis`, `settings`, `createServer`, `getServerPort`. Trigger/settings request/response types come from `@devvit/web/shared`.
 - **Dates**: `temporal-polyfill` (`Temporal`). All stored timestamps are epoch **milliseconds**.
 - **Build**: Vite (`vite build`) → `dist/server/index.cjs` (entry declared in `devvit.json`).
-- **Checks**: `npm run checks` = `eslint src` + `tsc --noEmit`. TypeScript is `strict`.
+- **Checks**: `npm run checks` = `oxlint src test` + `oxfmt --check src test` + `tsc --noEmit`. TypeScript is `strict`.
 
 ## Layout
 

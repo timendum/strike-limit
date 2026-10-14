@@ -1,4 +1,5 @@
 import { Temporal } from "temporal-polyfill";
+
 import type { BanAction, NoBanAction, RemovalAction } from "./types";
 
 /**
@@ -22,9 +23,7 @@ export function formatTextRemoval(
   if (text.indexOf("{list}") >= 0) {
     text = text.replaceAll(
       "{list}",
-      banContext.removals
-        .map((e) => formatEntryRemoval(e, entryTemplate))
-        .join("\n"),
+      banContext.removals.map((e) => formatEntryRemoval(e, entryTemplate)).join("\n"),
     );
   }
   return text;
@@ -54,14 +53,9 @@ export function formatTextBan(
   if (bans.length == 0) {
     text = emptyTemplate;
   }
-  text = text
-    .replaceAll("{user}", user)
-    .replaceAll("{bannedNumber}", String(bans.length));
+  text = text.replaceAll("{user}", user).replaceAll("{bannedNumber}", String(bans.length));
   if (text.indexOf("{list}") >= 0) {
-    text = text.replaceAll(
-      "{list}",
-      bans.map((e) => formatEntryBan(e, entryTemplate)).join("\n"),
-    );
+    text = text.replaceAll("{list}", bans.map((e) => formatEntryBan(e, entryTemplate)).join("\n"));
   }
   return text;
 }
@@ -71,11 +65,8 @@ function formatEntryNoBan(entry: NoBanAction, entryTemplate: string) {
     .toZonedDateTimeISO("UTC")
     .toPlainDate()
     .toString();
-  const reason =
-    entry.from === "unban" ? "ban undone" : "limit reached, not banned";
-  return entryTemplate
-    .replaceAll("{date}", date)
-    .replaceAll("{reason}", reason);
+  const reason = entry.from === "unban" ? "ban undone" : "limit reached, not banned";
+  return entryTemplate.replaceAll("{date}", date).replaceAll("{reason}", reason);
 }
 
 /**
@@ -91,9 +82,7 @@ export function formatTextNoBan(
 ) {
   const { user, noBans } = context;
   let text = noBans.length == 0 ? emptyTemplate : textTemplate;
-  text = text
-    .replaceAll("{user}", user)
-    .replaceAll("{noBanNumber}", String(noBans.length));
+  text = text.replaceAll("{user}", user).replaceAll("{noBanNumber}", String(noBans.length));
   if (text.indexOf("{list}") >= 0) {
     text = text.replaceAll(
       "{list}",
@@ -108,9 +97,7 @@ function formatEntryRemoval(entry: RemovalAction, entryTemplate: string) {
     .toZonedDateTimeISO("UTC")
     .toPlainDate()
     .toString();
-  let permalink = `https://www.reddit.com/comments/${entry.target.postId.substring(
-    3,
-  )}/`;
+  let permalink = `https://www.reddit.com/comments/${entry.target.postId.substring(3)}/`;
   let kind = "post";
   if (entry.target.id != entry.target.postId) {
     permalink = `${permalink}_/${entry.target.id.substring(3)}/`;

@@ -1,5 +1,6 @@
 import { reddit, redis } from "@devvit/web/server";
 import { Temporal } from "temporal-polyfill";
+
 import { getBanConfig, getStrikeConfig, getNForBan } from "../../shared/config";
 import {
   formatLastBan,
@@ -104,7 +105,6 @@ async function getRemovalActions(user: string, since: number) {
   return parseZSetMembers(removals, isRemovalAction).map((a) => a[0]);
 }
 
-
 async function getNoBanActions(user: string, since: number) {
   const bans = await redis.zRange(`user:${user}:noBan`, since, "+inf", {
     by: "score",
@@ -134,14 +134,9 @@ async function getUserBans(user: string) {
       reverse: true,
       limit: { offset: 0, count: 1 },
     });
-    const banDates = parseZSetMembers(bans, isNoBanAction).map(
-      (a) => a[0].createdAt,
-    );
+    const banDates = parseZSetMembers(bans, isNoBanAction).map((a) => a[0].createdAt);
     console.debug(`getUserBans - ${user} - noBans: ${nNoBans} -`, banDates);
-    lastBan =
-      banDates.length > 0
-        ? Temporal.Instant.from(banDates[0]).epochMilliseconds
-        : 0;
+    lastBan = banDates.length > 0 ? Temporal.Instant.from(banDates[0]).epochMilliseconds : 0;
   }
   if (nBans > 0) {
     const bans = await redis.zRange(`user:${user}:ban`, "-inf", "+inf", {
@@ -149,14 +144,10 @@ async function getUserBans(user: string) {
       reverse: true,
       limit: { offset: 0, count: 1 },
     });
-    const banDates = parseZSetMembers(bans, isBanAction).map(
-      (a) => a[0].createdAt,
-    );
+    const banDates = parseZSetMembers(bans, isBanAction).map((a) => a[0].createdAt);
     console.debug(`getUserBans - ${user} - bans: ${nBans} -`, banDates);
     lastBan = Math.max(
-      banDates.length > 0
-        ? Temporal.Instant.from(banDates[0]).epochMilliseconds
-        : 0,
+      banDates.length > 0 ? Temporal.Instant.from(banDates[0]).epochMilliseconds : 0,
       lastBan,
     );
   }
@@ -173,35 +164,21 @@ export async function maybeBanUser(user: string) {
   if (strikeConfig.spanDays > 0) {
     since = Math.max(
       since,
-      Temporal.Now.instant()
-        .toZonedDateTimeISO("UTC")
-        .subtract({ days: strikeConfig.spanDays }).epochMilliseconds,
+      Temporal.Now.instant().toZonedDateTimeISO("UTC").subtract({ days: strikeConfig.spanDays })
+        .epochMilliseconds,
     );
   }
   // Retrieve removals
-  const removalEntries = await redis.zRange(
-    `user:${user}:removal`,
-    since,
-    "+inf",
-    { by: "score" },
-  );
-  let removals = parseZSetMembers(removalEntries, isRemovalAction).map(
-    (a) => a[0],
-  );
+  const removalEntries = await redis.zRange(`user:${user}:removal`, since, "+inf", { by: "score" });
+  let removals = parseZSetMembers(removalEntries, isRemovalAction).map((a) => a[0]);
   const maxStrikes = getNForBan(nBans, strikeConfig.strikesBan);
-  console.debug(
-    `maybeBanUser - ${user} - ${nBans} - ${maxStrikes} vs`,
-    removals,
-  );
+  console.debug(`maybeBanUser - ${user} - ${nBans} - ${maxStrikes} vs`, removals);
   if (removals.length < maxStrikes) {
     // NO BAN
     return;
   }
   // BAN
-  const [banConfig, subreddit] = await Promise.all([
-    getBanConfig(),
-    reddit.getCurrentSubreddit(),
-  ]);
+  const [banConfig, subreddit] = await Promise.all([getBanConfig(), reddit.getCurrentSubreddit()]);
   const duration = getNForBan(nBans, banConfig.banDuration);
   const body = formatTextRemoval(
     { user, removals },
@@ -225,7 +202,7 @@ export async function maybeBanUser(user: string) {
       subredditName: subreddit.name,
       to: null, // internal mod discussion
     });
-    storeNoBan({
+    await storeNoBan({
       createdAt: Temporal.Now.instant().toString(),
       user: user,
       from: "notification",
@@ -256,7 +233,7 @@ export async function maybeBanUser(user: string) {
         subredditName: subreddit.name,
         to: null, // internal mod discussion
       });
-      storeNoBan({
+      await storeNoBan({
         createdAt: Temporal.Now.instant().toString(),
         user: user,
         from: "notification",
@@ -295,7 +272,7 @@ export async function maybeBanUser(user: string) {
       subredditName: subreddit.name,
       to: null, // internal mod discussion
     });
-    storeNoBan({
+    await storeNoBan({
       createdAt: Temporal.Now.instant().toString(),
       user: user,
       from: "notification",
@@ -327,10 +304,7 @@ export async function replyModMailQuery(conversationId: string) {
   }
   const conversation = getConversation.conversation;
   // avoid loop: don't reply to mail from app
-  if (
-    appUser &&
-    conversation.authors.filter((a) => a.name == appUser.username).length > 0
-  ) {
+  if (appUser && conversation.authors.filter((a) => a.name == appUser.username).length > 0) {
     return false;
   }
 
@@ -383,14 +357,13 @@ export async function replyModMailQuery(conversationId: string) {
 export async function removeBanIfRecent(ban: BanAction) {
   const createdAt = Temporal.Instant.from(ban.createdAt).epochMilliseconds;
   const key = `user:${ban.user}:ban`;
-  const deltaT = 23*60*60*100;
+  const deltaT = 23 * 60 * 60 * 100;
 
   const entries = await redis.zRange(key, createdAt - deltaT, createdAt, {
     by: "score",
   });
   const candidates = parseZSetMembers(entries, isBanAction).filter(
-    ([b]) =>
-      createdAt - Temporal.Instant.from(b.createdAt).epochMilliseconds < deltaT,
+    ([b]) => createdAt - Temporal.Instant.from(b.createdAt).epochMilliseconds < deltaT,
   );
   if (candidates.length === 0) {
     console.log("No recent ban to undo for unban", ban);
@@ -425,10 +398,7 @@ export async function removeRemovalAction(action: RemovalAction) {
     (a) => a[0].target.id === action.target.id,
   );
   if (alreadyStored.length == 0) {
-    console.info(
-      "RemovalReason NOT stored, skipping ApprovalAction on ",
-      action.target.id,
-    );
+    console.info("RemovalReason NOT stored, skipping ApprovalAction on ", action.target.id);
     return;
   }
 

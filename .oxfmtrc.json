@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "insertFinalNewline": true,
+  "sortImports": {
+    "order": "asc",
+    "ignoreCase": true
+  },
+  "sortPackageJson": true,
+  "ignorePatterns": ["dist", "node_modules"]
+}

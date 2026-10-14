@@ -1,6 +1,7 @@
 import { createDevvitTest } from "@devvit/test/server/vitest";
 import { redis } from "@devvit/web/server";
 import { expect } from "vitest";
+
 import { isRemovalAction, type RemovalAction } from "../src/shared/types";
 import {
   approveComment,
@@ -62,9 +63,7 @@ test("approving removed content clears the recorded strike", async () => {
 test("approving content that was never removed leaves other strikes intact", async () => {
   stubReddit();
 
-  await postModAction(
-    removalReasonComment({ ...content, actionedAt: "2026-02-01T10:00:00Z" }),
-  );
+  await postModAction(removalReasonComment({ ...content, actionedAt: "2026-02-01T10:00:00Z" }));
 
   // Different target.id
   const approveStatus = await postModAction(

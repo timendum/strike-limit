@@ -1,4 +1,3 @@
-import { Hono } from "hono";
 import type {
   OnAppInstallRequest,
   OnAppUpgradeRequest,
@@ -6,6 +5,9 @@ import type {
   OnModMailRequest,
   TriggerResponse,
 } from "@devvit/web/shared";
+import { Hono } from "hono";
+
+import { isBanAction, isRemovalAction } from "../../shared/types";
 import {
   removeBanIfRecent,
   removeRemovalAction,
@@ -13,7 +15,6 @@ import {
   storeBan,
   storeRemovalAction,
 } from "../core/strikes";
-import { isBanAction, isRemovalAction } from "../../shared/types";
 
 export const triggers = new Hono();
 

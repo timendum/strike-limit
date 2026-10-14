@@ -1,7 +1,4 @@
-import {
-  SettingsValidationRequest,
-  SettingsValidationResponse,
-} from "@devvit/web/shared";
+import { SettingsValidationRequest, SettingsValidationResponse } from "@devvit/web/shared";
 import { Hono } from "hono";
 
 export const settings = new Hono();
@@ -48,9 +45,7 @@ settings.post("/ban-duration", async (c) => {
     if (!isPositiveInteger(duration, 0))
       return c.json<SettingsValidationResponse>({
         success: false,
-        error:
-          "Invalid ban duration, must be interger and not negative: " +
-          duration,
+        error: "Invalid ban duration, must be interger and not negative: " + duration,
       });
   }
 

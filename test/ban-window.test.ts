@@ -1,12 +1,7 @@
 import { createDevvitTest } from "@devvit/test/server/vitest";
 import { expect } from "vitest";
-import {
-  banUserAction,
-  ms,
-  postModAction,
-  removalReasonComment,
-  stubReddit,
-} from "./helpers";
+
+import { banUserAction, ms, postModAction, removalReasonComment, stubReddit } from "./helpers";
 
 /**
  * removal, ban, removal -> only the last removal counts
@@ -40,11 +35,9 @@ test("only removals after the last ban count toward the next ban", async () => {
   expect(stubs.banUser).not.toHaveBeenCalled();
 
   // 05. Manual ban
-  expect(
-    await postModAction(
-      banUserAction({ user, actionedAt: "2026-03-05T12:00:00Z" }),
-    ),
-  ).toBe("success");
+  expect(await postModAction(banUserAction({ user, actionedAt: "2026-03-05T12:00:00Z" }))).toBe(
+    "success",
+  );
 
   // 10. New removal
   await postModAction(removal(user, "2026-03-10T10:00:00Z", "t1_post1"));

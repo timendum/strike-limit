@@ -5,12 +5,14 @@
   "license": "BSD-3-Clause",
   "type": "module",
   "scripts": {
-    "checks": "npm run lint && npm run type-check",
+    "checks": "npm run lint && npm run format:check && npm run type-check",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint src test",
+    "lint": "oxlint src test",
+    "lint:fix": "oxlint src test --fix",
     "type-check": "tsc --noEmit -p tsconfig.test.json",
-    "prettier": "npx prettier -w src",
+    "format": "oxfmt src test",
+    "format:check": "oxfmt --check src test",
     "build": "vite build",
     "deploy": "npm run build && devvit upload",
     "dev": "vite build && devvit playtest",
@@ -30,10 +32,11 @@
   "devDependencies": {
     "@devvit/start": "^0.14.7",
     "@devvit/test": "0.14.7",
-    "@eslint/js": "^10.0.1",
-    "prettier": "^3.9.9",
+    "@types/node": "^26.6.5",
+    "oxfmt": "^0.72.0",
+    "oxlint": "^1.87.0",
+    "oxlint-tsgolint": "^7.0.2004",
     "typescript": "<6.1.0",
-    "typescript-eslint": "^8.71.0",
     "vite": "^8.3.2",
     "vitest": "^5.0.3"
   }

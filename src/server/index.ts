@@ -1,11 +1,12 @@
-import { Hono } from "hono";
-import { serve } from "@hono/node-server";
 import { createServer, getServerPort } from "@devvit/web/server";
+import { serve } from "@hono/node-server";
+import { Hono } from "hono";
+
+import { settings } from "./routes/settings";
 // import { api } from "./routes/api";
 // import { forms } from "./routes/forms";
 // import { menu } from "./routes/menu";
 import { triggers } from "./routes/triggers";
-import { settings } from "./routes/settings";
 
 const app = new Hono();
 const internal = new Hono();

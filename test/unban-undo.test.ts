@@ -1,18 +1,9 @@
 import { createDevvitTest } from "@devvit/test/server/vitest";
 import { redis } from "@devvit/web/server";
 import { expect, test as vitestTest } from "vitest";
-import {
-  type BanAction,
-  isBanAction,
-  isNoBanAction,
-  type NoBanAction,
-} from "../src/shared/types";
-import {
-  banUserAction,
-  postModAction,
-  stubReddit,
-  unbanUserAction,
-} from "./helpers";
+
+import { type BanAction, isBanAction, isNoBanAction, type NoBanAction } from "../src/shared/types";
+import { banUserAction, postModAction, stubReddit, unbanUserAction } from "./helpers";
 
 /**
  * A moderator undoing a ban within 24h should drop the ban from `:ban`
@@ -53,21 +44,17 @@ async function storedNoBans(user: string): Promise<NoBanAction[]> {
     .filter(isNoBanAction);
 }
 
-test("unban within 24h removes the ban and records a from:\"unban\" noBan", async () => {
+test('unban within 24h removes the ban and records a from:"unban" noBan', async () => {
   stubReddit();
   const user = "undone";
 
-  expect(
-    await postModAction(
-      banUserAction({ user, actionedAt: "2026-04-01T10:00:00Z" }),
-    ),
-  ).toBe("success");
+  expect(await postModAction(banUserAction({ user, actionedAt: "2026-04-01T10:00:00Z" }))).toBe(
+    "success",
+  );
   expect(await storedBans(user)).toHaveLength(1);
 
   const unbanIso = "2026-04-01T11:00:00Z"; // +1h
-  expect(
-    await postModAction(unbanUserAction({ user, actionedAt: unbanIso })),
-  ).toBe("success");
+  expect(await postModAction(unbanUserAction({ user, actionedAt: unbanIso }))).toBe("success");
 
   expect(await storedBans(user)).toHaveLength(0);
   const noBans = await storedNoBans(user);
@@ -108,11 +95,9 @@ test("unban with no matching ban is a no-op but still handled", async () => {
   stubReddit();
   const user = "neverbanned";
 
-  expect(
-    await postModAction(
-      unbanUserAction({ user, actionedAt: "2026-04-01T10:00:00Z" }),
-    ),
-  ).toBe("success");
+  expect(await postModAction(unbanUserAction({ user, actionedAt: "2026-04-01T10:00:00Z" }))).toBe(
+    "success",
+  );
 
   expect(await storedBans(user)).toHaveLength(0);
   expect(await storedNoBans(user)).toHaveLength(0);

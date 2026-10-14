@@ -1,9 +1,10 @@
 import { reddit } from "@devvit/web/server";
-import { vi } from "vitest";
-import { Temporal } from "temporal-polyfill";
 import type { OnModActionRequest, OnModMailRequest } from "@devvit/web/shared";
-import { triggers } from "../src/server/routes/triggers";
+import { Temporal } from "temporal-polyfill";
+import { vi } from "vitest";
+
 import { settings as settingsRoutes } from "../src/server/routes/settings";
+import { triggers } from "../src/server/routes/triggers";
 
 /**
  * Shared test helpers for the strike-limit suite.
@@ -110,28 +111,28 @@ export function stubReddit(opts: RedditStubOptions = {}): RedditStubs {
 
   vi.spyOn(reddit, "getApprovedUsers").mockImplementation(
     ({ username }: { username?: string }) =>
-      listing(
-        username && approvedUsers.includes(username) ? [{ username }] : [],
-      ) as ReturnType<typeof reddit.getApprovedUsers>,
+      listing(username && approvedUsers.includes(username) ? [{ username }] : []) as ReturnType<
+        typeof reddit.getApprovedUsers
+      >,
   );
 
   vi.spyOn(reddit, "getModerators").mockImplementation(
     ({ username }: { username?: string }) =>
-      listing(
-        username && moderators.includes(username) ? [{ username }] : [],
-      ) as ReturnType<typeof reddit.getModerators>,
+      listing(username && moderators.includes(username) ? [{ username }] : []) as ReturnType<
+        typeof reddit.getModerators
+      >,
   );
 
   vi.spyOn(reddit, "getBannedUsers").mockImplementation(
     ({ username }: { username?: string }) =>
-      listing(
-        username && bannedUsers.includes(username) ? [{ username }] : [],
-      ) as ReturnType<typeof reddit.getBannedUsers>,
+      listing(username && bannedUsers.includes(username) ? [{ username }] : []) as ReturnType<
+        typeof reddit.getBannedUsers
+      >,
   );
 
-  const banUser = vi
-    .spyOn(reddit, "banUser")
-    .mockResolvedValue(undefined) as unknown as ReturnType<typeof vi.fn>;
+  const banUser = vi.spyOn(reddit, "banUser").mockResolvedValue(undefined) as unknown as ReturnType<
+    typeof vi.fn
+  >;
 
   // reddit.modMail is a getter returning a ModMailService instance. Grab it
   // once and spy on the stable instance.
@@ -139,9 +140,9 @@ export function stubReddit(opts: RedditStubOptions = {}): RedditStubs {
   const createConversation = vi
     .spyOn(modMail, "createConversation")
     .mockResolvedValue({} as never) as unknown as ReturnType<typeof vi.fn>;
-  const reply = vi
-    .spyOn(modMail, "reply")
-    .mockResolvedValue({} as never) as unknown as ReturnType<typeof vi.fn>;
+  const reply = vi.spyOn(modMail, "reply").mockResolvedValue({} as never) as unknown as ReturnType<
+    typeof vi.fn
+  >;
   const getConversation = vi
     .spyOn(modMail, "getConversation")
     .mockResolvedValue({} as never) as unknown as ReturnType<typeof vi.fn>;
@@ -234,10 +235,7 @@ export function approveComment(params: {
   actionedAt: string;
 }): OnModActionRequest {
   return {
-    ...modActionEnvelope(
-      { action: "approvecomment", actionedAt: params.actionedAt },
-      params.user,
-    ),
+    ...modActionEnvelope({ action: "approvecomment", actionedAt: params.actionedAt }, params.user),
     targetComment: {
       id: params.commentId,
       parentId: params.postId,
@@ -252,10 +250,7 @@ export function approveComment(params: {
 }
 
 /** `banuser` mod-action, issued by some moderator/bot (as in production). */
-export function banUserAction(params: {
-  user: string;
-  actionedAt: string;
-}): OnModActionRequest {
+export function banUserAction(params: { user: string; actionedAt: string }): OnModActionRequest {
   return modActionEnvelope(
     { action: "banuser", actionedAt: params.actionedAt },
     params.user,
@@ -263,10 +258,7 @@ export function banUserAction(params: {
 }
 
 /** `unbanuser` mod-action, issued by some moderator (as in production). */
-export function unbanUserAction(params: {
-  user: string;
-  actionedAt: string;
-}): OnModActionRequest {
+export function unbanUserAction(params: { user: string; actionedAt: string }): OnModActionRequest {
   return modActionEnvelope(
     { action: "unbanuser", actionedAt: params.actionedAt },
     params.user,
@@ -286,9 +278,7 @@ export function otherModAction(params: {
 }
 
 /** Internal, new, non-auto-generated mod-mail (a strike query from a mod). */
-export function modMailRequest(params: {
-  conversationId: string;
-}): OnModMailRequest {
+export function modMailRequest(params: { conversationId: string }): OnModMailRequest {
   return {
     conversationId: params.conversationId,
     messageId: "ModmailMessage_test",
@@ -301,9 +291,7 @@ export function modMailRequest(params: {
 }
 
 /** An auto-generated sr_user mod-mail (ban notification), which must be skipped. */
-export function autoModMailRequest(params: {
-  conversationId: string;
-}): OnModMailRequest {
+export function autoModMailRequest(params: { conversationId: string }): OnModMailRequest {
   return {
     conversationId: params.conversationId,
     messageId: "ModmailMessage_auto",

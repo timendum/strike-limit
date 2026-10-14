@@ -1,11 +1,7 @@
 import { createDevvitTest } from "@devvit/test/server/vitest";
 import { expect } from "vitest";
-import {
-  ms,
-  postModAction,
-  removalReasonComment,
-  stubReddit,
-} from "./helpers";
+
+import { ms, postModAction, removalReasonComment, stubReddit } from "./helpers";
 
 /**
  * multiple removals -> ban

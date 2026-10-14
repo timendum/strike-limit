@@ -1,12 +1,8 @@
 import { createDevvitTest } from "@devvit/test/server/vitest";
-import { expect } from "vitest";
 import { Temporal } from "temporal-polyfill";
-import {
-  ms,
-  postModAction,
-  removalReasonComment,
-  stubReddit,
-} from "./helpers";
+import { expect } from "vitest";
+
+import { ms, postModAction, removalReasonComment, stubReddit } from "./helpers";
 
 /**
  * span-days > 0

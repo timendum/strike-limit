@@ -19,14 +19,13 @@ export async function getStrikeConfig() {
 }
 
 export async function getBanConfig() {
-  let [ignoreApproved, noBan, banText, banEntry, banDurationStr] =
-    await Promise.all([
-      settings.get<boolean>("ignore-approved"),
-      settings.get<boolean>("no-ban"),
-      settings.get<string>("ban-text"),
-      settings.get<string>("ban-entry"),
-      settings.get<string>("ban-duration"),
-    ]);
+  let [ignoreApproved, noBan, banText, banEntry, banDurationStr] = await Promise.all([
+    settings.get<boolean>("ignore-approved"),
+    settings.get<boolean>("no-ban"),
+    settings.get<string>("ban-text"),
+    settings.get<string>("ban-entry"),
+    settings.get<string>("ban-duration"),
+  ]);
   banDurationStr = banDurationStr || "30";
   ignoreApproved = ignoreApproved === undefined ? false : ignoreApproved;
   noBan = noBan === undefined ? false : noBan;

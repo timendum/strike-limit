@@ -131,15 +131,15 @@ export function formatNotBanned(params: {
   maxStrikes: number;
   removals: RemovalAction[];
 }) {
-  const { prefix, body, user, lastBan, maxStrikes, removals, nBans } = params;
+  const { prefix, body, user, lastBan, removals, nBans } = params;
   const sinceTxt = formatLastBan(lastBan);
 
-  return `I've not banned ${prefix}u/${user}, but I noticed the limit has been reached:
-${removals.length} removals > ${maxStrikes}${sinceTxt}
+  return `${prefix}u/${user} reached the limit: ${removals.length} removals${sinceTxt}.
+This is just a notification; no ban has been issued.
 
 Number of previous bans: ${nBans}.
 
-Ban message follows.
+Ban message follows:
 
 ---
 

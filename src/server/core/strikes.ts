@@ -290,7 +290,7 @@ export async function maybeBanUser(user: string) {
     subredditName: subreddit.name,
     duration: duration > 0 ? duration : undefined,
     message: body,
-    note: `Strike-limit: ${nBans} previous bans - ${removals.length} removals > ${maxStrikes}${sinceTxt}.`,
+    note: `Strike-limit: ${nBans} previous bans - ${removals.length} removals${sinceTxt}.`,
   });
 }
 

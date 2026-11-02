@@ -134,7 +134,7 @@ export function formatNotBanned(params: {
   const { prefix, body, user, lastBan, removals, nBans } = params;
   const sinceTxt = formatLastBan(lastBan);
 
-  return `${prefix}u/${user} reached the limit: ${removals.length} removals${sinceTxt}.
+  return `${prefix} u/${user} reached the limit: ${removals.length} removals${sinceTxt}.
 This is just a notification; no ban has been issued.
 
 Number of previous bans: ${nBans}.

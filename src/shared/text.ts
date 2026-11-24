@@ -122,6 +122,13 @@ export function formatLastBan(lastBan: number) {
   return "";
 }
 
+export function formatBanDuration(days: number) {
+  if (days <= 0) {
+    return "permanently";
+  }
+  return days === 1 ? "for 1 day" : `for ${days} days`;
+}
+
 export function formatNotBanned(params: {
   prefix: string;
   body: string;
@@ -130,16 +137,22 @@ export function formatNotBanned(params: {
   nBans: number;
   maxStrikes: number;
   removals: RemovalAction[];
+  /** Duration (days, 0 = permanent) of a ban triggered by replying "ban"; omit if not offered. */
+  banDays?: number;
 }) {
-  const { prefix, body, user, lastBan, removals, nBans } = params;
+  const { prefix, body, user, lastBan, removals, nBans, banDays } = params;
   const sinceTxt = formatLastBan(lastBan);
+  const banOption =
+    banDays === undefined
+      ? ""
+      : `To ban this user, reply "ban" to this message. The ban would last ${formatBanDuration(banDays)}.\n\n`;
 
   return `${prefix} u/${user} reached the limit: ${removals.length} removals${sinceTxt}.
 This is just a notification; no ban has been issued.
 
 Number of previous bans: ${nBans}.
 
-Ban message follows:
+${banOption}Ban message follows:
 
 ---
 

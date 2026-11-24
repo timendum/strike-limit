@@ -19,6 +19,7 @@ function removal(user: string, iso: string, id: string) {
 
 const escalationTest = createDevvitTest({
   settings: {
+    "do-ban": true,
     "strikes-ban": "2;4", // 2, then 4
     "ban-duration": "7;30", // 7, then 30
     "span-days": 0,
@@ -78,6 +79,7 @@ escalationTest("reuses the last tier when offenses exceed the configured list", 
 
 const permaTest = createDevvitTest({
   settings: {
+    "do-ban": true,
     "strikes-ban": "2",
     "ban-duration": "0",
     "span-days": 0,
@@ -103,6 +105,7 @@ permaTest("maps ban-duration 0 to a permanent ban (duration undefined)", async (
 
 const alreadyBannedTest = createDevvitTest({
   settings: {
+    "do-ban": true,
     "strikes-ban": "2",
     "ban-duration": "7",
     "span-days": 0,

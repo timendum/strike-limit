@@ -51,17 +51,17 @@
         "validationEndpoint": "/internal/settings/span-days",
         "defaultValue": 0
       },
-      "no-ban": {
+      "do-ban": {
         "type": "boolean",
-        "label": "Don't ban, just notify",
-        "helpText": "If checked, the app will only notify the mod team via ModMail.",
+        "label": "Ban instead of notify",
+        "helpText": "If checked, the app ban the user and will not notify the mod team via ModMail.",
         "defaultValue": false
       },
       "ignore-approved": {
         "type": "boolean",
         "label": "Don't ban Approved users",
         "helpText": "If checked, Approved users are skipped, the app will only notify the mod team via ModMail.",
-        "defaultValue": false
+        "defaultValue": true
       },
       "ban-text": {
         "type": "paragraph",

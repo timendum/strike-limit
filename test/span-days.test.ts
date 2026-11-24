@@ -11,6 +11,7 @@ import { ms, postModAction, removalReasonComment, stubReddit } from "./helpers";
 // 30-day window.
 const test = createDevvitTest({
   settings: {
+    "do-ban": true,
     "strikes-ban": "3",
     "ban-duration": "7",
     "span-days": 30,

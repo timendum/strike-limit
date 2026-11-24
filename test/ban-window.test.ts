@@ -8,6 +8,7 @@ import { banUserAction, ms, postModAction, removalReasonComment, stubReddit } fr
  */
 const test = createDevvitTest({
   settings: {
+    "do-ban": true,
     "strikes-ban": "2",
     "ban-duration": "7",
     "span-days": 0,

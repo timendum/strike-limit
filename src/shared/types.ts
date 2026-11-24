@@ -67,3 +67,40 @@ export function isNoBanAction(obj: unknown): obj is NoBanAction {
     (obj.from == "notification" || obj.from == "unban")
   );
 }
+
+/**
+ * Link between a notification modmail conversation and the user it is about.
+ * Stored in the Redis hash `modmail:{conversationId}`; all values are strings there.
+ */
+export type ModMailBanRequest = {
+  user: string;
+  /** Ban duration in days shown in the notification (0 = permanent). */
+  duration: number;
+  /** Epoch ms of the `noBan` entry written with the notification. */
+  notifiedAt: number;
+  handled: boolean;
+};
+
+/** Parse the raw `hGetAll` record of a `modmail:{conversationId}` hash. */
+export function parseModMailBanRequest(obj: unknown): ModMailBanRequest | undefined {
+  if (
+    typeof obj !== "object" ||
+    obj === null ||
+    !("user" in obj) ||
+    typeof obj.user !== "string" ||
+    obj.user.length === 0 ||
+    !("duration" in obj) ||
+    typeof obj.duration !== "string" ||
+    !("notifiedAt" in obj) ||
+    typeof obj.notifiedAt !== "string"
+  ) {
+    return undefined;
+  }
+  const duration = Number(obj.duration);
+  const notifiedAt = Number(obj.notifiedAt);
+  if (!Number.isInteger(duration) || duration < 0 || !Number.isFinite(notifiedAt)) {
+    return undefined;
+  }
+  const handled = "handled" in obj && obj.handled === "1";
+  return { user: obj.user, duration, notifiedAt, handled };
+}
